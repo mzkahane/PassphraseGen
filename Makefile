@@ -1,4 +1,4 @@
-generator: diceware.c
+generator: main.c
 	gcc -g -o $@ $<
 
 clean:
