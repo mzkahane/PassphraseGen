@@ -3,10 +3,44 @@
 #include <stdbool.h>
 #include <string.h>
 
+static int NUM_DICE = 4;
+
+char * getWord(int key) {
+	// TODO Add parameter with word-number datastructure (2D-array?)
+	// search the array for the given key and return the corresponding word.
+	return "test";
+}
+
+int rollDice(int count) {
+	// Get random number 1-6 <count> times. add up to make a <count>-digit number.
+	return 4321;
+}
+
+/*
+  Calls several functions to get the components of, and assemble the passphrase
+*/
 char * makePassphrase(int count, char * separator, bool lastNumber) {
+	char * words[count];
+	
 	for (int i = 0; i < count; i++) {
-		int roll = getDiceRolls();
+		// instead of finding the matching word, add the number as the word.
+		int roll = rollDice(NUM_DICE);
+		if (lastNumber && (i == count-1)){
+			char numStr[NUM_DICE];
+			sprintf(numStr, "%d", roll); 
+			words[i] = numStr;
+		} else {
+			words[i] = getWord(roll);
+		}
 	}
+
+	char * passphrase;
+	for (int i = 0; i < count; i++) {
+		strcat(passphrase, words[i]);
+		strcat(passphrase, separator);
+	}
+
+	return passphrase;
 }
 
 int main (int argc, char* argv[]) {
@@ -45,5 +79,6 @@ int main (int argc, char* argv[]) {
 	}
 
 	char * passphrase = makePassphrase(count, separator, lastNumber);
+	printf("%s\n", passphrase);
 	return 0;
 }
