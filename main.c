@@ -4,6 +4,8 @@
 #include <string.h>
 #include <time.h>
 
+#include "dictionary.h"
+
 static int NUM_DICE = 4;
 
 char * getWord(int key) {
@@ -95,8 +97,14 @@ int main (int argc, char* argv[]) {
 			continue;
 		}
 	}
+	printf("Populating dictionary...\n");
+	populateDictionary("words.txt");
+	for (int i = 0; i < 10; i++) {
+		printf("%s -> %d\n", dictionary[i].word, dictionary[i].number);
+	}
+	printf("Populating complete!\n");
 
-	char * passphrase = makePassphrase(count, separator, lastNumber);
+	char *passphrase = makePassphrase(count, separator, lastNumber);
 	printf("%s\n", passphrase);
 	free(passphrase);
 	return 0;
