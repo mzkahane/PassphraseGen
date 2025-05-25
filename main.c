@@ -3,17 +3,11 @@
 #include <stdbool.h>
 #include <string.h>
 #include <time.h>
+#include <ctype.h>
 
 #include "dictionary.h"
 
 static int NUM_DICE = 4;
-
-char * getWord(int key) {
-	// TODO Add parameter with word-number datastructure (2D-array?)
-	// search the array for the given key and return the corresponding word.
-	return "test";
-}
-
 
 /*
 	Generates a random number 1-6 <count> times. Concatenates them to make a <count> digit number.
@@ -24,7 +18,7 @@ int rollDice(int count) {
 	
 	for (int i = 0; i < count; i++) {
 		int roll = rand() % (6 - 1 + 1) + 1;
-		// handle placee values for concatenation
+		// handle place values for concatenation
 		int place = 10;
 		while (roll >= place) {
 			place *= 10;
@@ -44,7 +38,7 @@ char * makePassphrase(int count, char * separator, bool lastNumber) {
 	for (int i = 0; i < count; i++) {
 		int roll = rollDice(NUM_DICE);
 		// instead of finding the matching word, add the number as the word.
-		if (lastNumber && (i == count-1)){
+		if (lastNumber && (i == count-1)) {
 			sprintf(numStr, "%d", roll); 
 			words[i] = numStr;
 		} else {
@@ -61,48 +55,83 @@ char * makePassphrase(int count, char * separator, bool lastNumber) {
 	passphrase[0] = '\0';
 	for (int i = 0; i < count; i++) {
 		strcat(passphrase, words[i]);
-		strcat(passphrase, separator);
+		if (i != count-1) {
+			strcat(passphrase, separator);
+		}
 	}
 	
 	free(words);
 	return passphrase;
 }
 
+/*
+	Prints the proper usage of the program
+*/
+void printUsage() {
+	printf("USAGE: program [-i length] [-s separator] [-n]\n");
+	    printf("  -i length     Number of words in passphrase (default 5)\n");
+	    printf("  -s separator  Separator string (default \".\")\n");
+	    printf("  -n            Replace the last word with a number\n");
+	return;
+}
+
+/*
+	Helper function. Checks if as string contains a number or not
+*/
+bool isNumber(const char *str) {
+    if (!str || !*str) return false;
+    while (*str) {
+        if (!isdigit(*str)) return false;
+        str++;
+    }
+    return true;
+}
+
 int main (int argc, char* argv[]) {
-	// args: length, -s separator, -n last number
+	// args: -i length, -s separator, -n last number
 	int count = 5;
 	char* separator = ".";
 	bool lastNumber = false;
 
-	// TODO turn this into a function
 	if (argc > 6) {
 		printf("ERROR: Malformed command.\n");
-		printf("USAGE: ./diceware.exe [-i _] [-s _] [-n]\n");
-		printf("-i  : OPTIONAL follow with how many words you want in the passphrase. Default is 5.\n-s  : OPTIONAL follow with the separator you want between each word. Default is '.'\n-n  : OPTIONAL include if you want the last word to instead be numbers.\n");
+		printUsage();
 		return -1;
 	}
-	// TODO handle missing/invalid values after flags
+	// Parse flags and check for proper values
 	for (int i = 1; i < argc; i++) {
+		// Handles -i flag and value
 		if (strcmp("-i", argv[i]) == 0) {
+			if (i + 1 >= argc || argv[i + 1][0] == '-') {
+				printf("ERROR: Missing value after -i\n");
+				printUsage();
+				return -1;
+			}
+			if (!isNumber(argv[i + 1])) {
+				printf("ERROR: Invalid value for -i (must be a number)\n");
+				printUsage();
+				return -1;
+			}
 			count = atoi(argv[++i]);
-			continue;
+		// Handles -s flag and value
 		} else if (strcmp("-s", argv[i]) == 0) {
+			if (i + 1 >= argc || argv[i + 1][0] == '-') {
+				printf("ERROR: Missing value after -s\n");
+				printUsage();
+				return -1;
+			}
 			separator = argv[++i];
-			continue;
+		// Handles -n flag	
 		} else if (strcmp("-n", argv[i]) == 0) {
 			lastNumber = true;
-			continue;
 		} else {
-			// TODO print usage
-			continue;
+			printf("ERROR: Unrecognized argument: %s\n", argv[i]);
+			printUsage();
+			return -1;
 		}
 	}
-	printf("Populating dictionary...\n");
+
 	populateDictionary("words.txt");
-	for (int i = 0; i < 10; i++) {
-		printf("%s -> %d\n", dictionary[i].word, dictionary[i].number);
-	}
-	printf("Populating complete!\n");
 
 	char *passphrase = makePassphrase(count, separator, lastNumber);
 	printf("%s\n", passphrase);
