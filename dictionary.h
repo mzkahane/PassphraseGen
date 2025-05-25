@@ -1,7 +1,7 @@
 #ifndef DICTIONARY_H
 #define DICTIONARY_H
 
-#define WORD_COUNT 1330
+#define WORD_COUNT 1296
 
 typedef struct {
 	char word[5];
@@ -12,5 +12,7 @@ typedef struct {
 extern WordEntry dictionary[WORD_COUNT];
 
 void populateDictionary(const char *filename);
+
+char * getWord(int number);
 
 #endif // DICTIONARY_H
